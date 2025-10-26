@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import LedPanelConfigurator from "@/components/LedPanelConfigurator"; // Importar o novo componente
 
 type ProductType = "painel_led" | "totem_led" | "painel_ima" | "";
 
@@ -19,17 +20,7 @@ const BudgetApp = () => {
   const renderProductContent = () => {
     switch (selectedProductType) {
       case "painel_led":
-        return (
-          <Card className="mt-8">
-            <CardHeader>
-              <CardTitle>Detalhes do Painel de LED</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Aqui você pode configurar as especificações do Painel de LED, como tamanho, resolução, tipo de uso (interno/externo), etc.</p>
-              {/* Adicione mais campos de configuração aqui */}
-            </CardContent>
-          </Card>
-        );
+        return <LedPanelConfigurator />; // Renderiza o novo componente
       case "totem_led":
         return (
           <Card className="mt-8">
