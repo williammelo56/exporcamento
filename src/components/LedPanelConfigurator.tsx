@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -9,14 +9,34 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { showSuccess, showError } from "@/utils/toast";
+import { useNavigate } from "react-router-dom";
+import { Plus } from "lucide-react";
+import { PanelModel } from "@/pages/PanelModelRegistration"; // Importar a interface PanelModel
+
+interface Salesperson {
+  id: string;
+  name: string;
+}
+
+const structurePrices: { [key: string]: number } = {
+  uma_face: 1360,
+  dupla_face: 1800,
+  dupla_face_led_angulo: 2720,
+  dupla_face_led_lona: 1560,
+  dupla_face_angulo_led_lona: 1760,
+};
 
 const LedPanelConfigurator = () => {
-  const [propostaEmNomeDe, setPropostaEmNomeDe] = useState("");
+  const navigate = useNavigate();
+  const [salespeople, setSalespeople] = useState<Salesperson[]>([]);
+  const [panelModels, setPanelModels] = useState<PanelModel[]>([]);
+
+  const [selectedSalespersonId, setSelectedSalespersonId] = useState("");
   const [nomeDoCliente, setNomeDoCliente] = useState("");
   const [tipoDeFace, setTipoDeFace] = useState("uma_face");
   const [largura, setLargura] = useState<number | string>("");
   const [altura, setAltura] = useState<number | string>("");
-  const [modeloDoPainel, setModeloDoPainel] = useState("");
+  const [selectedPanelModelId, setSelectedPanelModelId] = useState("");
   const [valorUnitarioPainel, setValorUnitarioPainel] = useState<number | string>("");
   const [valorUnitarioEstrutura, setValorUnitarioEstrutura] = useState<number | string>("");
   const [incluirBorda, setIncluirBorda] = useState(false);
@@ -28,6 +48,33 @@ const LedPanelConfigurator = () => {
   const [controladora, setControladora] = useState("");
   const [incluirPilarFerro, setIncluirPilarFerro] = useState(false);
   const [oferecerLocacao, setOferecerLocacao] = useState(false);
+
+  // Load salespeople and panel models from localStorage
+  useEffect(() => {
+    const storedSalespeople = localStorage.getItem("salespeople");
+    if (storedSalespeople) {
+      setSalespeople(JSON.parse(storedSalespeople));
+    }
+    const storedPanelModels = localStorage.getItem("panelModels");
+    if (storedPanelModels) {
+      setPanelModels(JSON.parse(storedPanelModels));
+    }
+  }, []);
+
+  // Update panel unit price when selected panel model changes
+  useEffect(() => {
+    const model = panelModels.find(m => m.id === selectedPanelModelId);
+    if (model) {
+      setValorUnitarioPainel(model.defaultPrice);
+    } else {
+      setValorUnitarioPainel("");
+    }
+  }, [selectedPanelModelId, panelModels]);
+
+  // Update structure unit price when type of face changes
+  useEffect(() => {
+    setValorUnitarioEstrutura(structurePrices[tipoDeFace] || 0);
+  }, [tipoDeFace]);
 
   const handleCalculateBudget = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,11 +91,11 @@ const LedPanelConfigurator = () => {
     const parsedHorasMunck = parseFloat(horasMunck as string);
 
     if (
-      !propostaEmNomeDe ||
+      !selectedSalespersonId ||
       !nomeDoCliente ||
       isNaN(parsedLargura) || parsedLargura <= 0 ||
       isNaN(parsedAltura) || parsedAltura <= 0 ||
-      !modeloDoPainel ||
+      !selectedPanelModelId ||
       isNaN(parsedValorUnitarioPainel) || parsedValorUnitarioPainel <= 0 ||
       isNaN(parsedValorUnitarioEstrutura) || parsedValorUnitarioEstrutura < 0 ||
       isNaN(parsedDistanciaLocal) || parsedDistanciaLocal < 0 ||
@@ -63,11 +110,11 @@ const LedPanelConfigurator = () => {
     }
 
     const budgetData = {
-      propostaEmNomeDe,
+      propostaEmNomeDe: salespeople.find(s => s.id === selectedSalespersonId)?.name,
       nomeDoCliente,
       tipoDeFace,
       dimensoes: { largura: parsedLargura, altura: parsedAltura },
-      modeloDoPainel,
+      modeloDoPainel: panelModels.find(m => m.id === selectedPanelModelId)?.name,
       valorUnitarioPainel: parsedValorUnitarioPainel,
       valorUnitarioEstrutura: parsedValorUnitarioEstrutura,
       incluirBorda,
@@ -98,14 +145,23 @@ const LedPanelConfigurator = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="propostaEmNomeDe">Proposta em nome de:</Label>
-              <Input
-                id="propostaEmNomeDe"
-                type="text"
-                value={propostaEmNomeDe}
-                onChange={(e) => setPropostaEmNomeDe(e.target.value)}
-                placeholder="Ex: William Melo"
-                required
-              />
+              <div className="flex items-center space-x-2">
+                <Select value={selectedSalespersonId} onValueChange={setSelectedSalespersonId} required>
+                  <SelectTrigger id="propostaEmNomeDe">
+                    <SelectValue placeholder="Selecione um vendedor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {salespeople.map((salesperson) => (
+                      <SelectItem key={salesperson.id} value={salesperson.id}>
+                        {salesperson.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" size="icon" onClick={() => navigate("/salesperson-registration")} aria-label="Cadastrar novo vendedor">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
             <div>
               <Label htmlFor="nomeDoCliente">Nome do Cliente:</Label>
@@ -179,14 +235,23 @@ const LedPanelConfigurator = () => {
 
           <div>
             <Label htmlFor="modeloDoPainel">Modelo do Painel:</Label>
-            <Input
-              id="modeloDoPainel"
-              type="text"
-              value={modeloDoPainel}
-              onChange={(e) => setModeloDoPainel(e.target.value)}
-              placeholder="Ex: PS Magnésio outdoor 96x96cm"
-              required
-            />
+            <div className="flex items-center space-x-2">
+              <Select value={selectedPanelModelId} onValueChange={setSelectedPanelModelId} required>
+                <SelectTrigger id="modeloDoPainel">
+                  <SelectValue placeholder="Selecione um modelo de painel" />
+                </SelectTrigger>
+                <SelectContent>
+                  {panelModels.map((model) => (
+                    <SelectItem key={model.id} value={model.id}>
+                      {model.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button variant="outline" size="icon" onClick={() => navigate("/panel-model-registration")} aria-label="Cadastrar novo modelo de painel">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

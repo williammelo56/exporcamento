@@ -1,5 +1,5 @@
 import { MadeWithDyad } from "@/components/made-with-dyad";
-import { Link, useNavigate } from "react-router-dom"; // Importar useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { showSuccess } from "@/utils/toast";
 
@@ -30,9 +30,19 @@ const Index = () => {
               Ver Histórico de Transações
             </Button>
           </Link>
-          <Link to="/product-registration"> {/* Novo link para Cadastro de Produtos */}
+          <Link to="/product-registration">
             <Button size="lg" variant="secondary" className="text-lg px-8 py-4 w-full">
               Cadastrar Produtos
+            </Button>
+          </Link>
+          <Link to="/salesperson-registration"> {/* Novo link */}
+            <Button size="lg" variant="ghost" className="text-lg px-8 py-4 w-full">
+              Cadastrar Vendedores
+            </Button>
+          </Link>
+          <Link to="/panel-model-registration"> {/* Novo link */}
+            <Button size="lg" variant="ghost" className="text-lg px-8 py-4 w-full">
+              Cadastrar Modelos de Painel
             </Button>
           </Link>
           <Button size="lg" variant="destructive" className="text-lg px-8 py-4 w-full" onClick={handleLogout}>
