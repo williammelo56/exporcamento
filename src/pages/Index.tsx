@@ -10,11 +10,28 @@ const Index = () => {
         <p className="text-xl text-gray-600 dark:text-gray-400 mb-6">
           Comece a construir seu projeto incrível aqui!
         </p>
-        <Link to="/budget">
-          <Button size="lg" className="text-lg px-8 py-4">
-            Ir para o Aplicativo de Orçamento
-          </Button>
-        </Link>
+        <div className="flex flex-col space-y-4">
+          <Link to="/budget">
+            <Button size="lg" className="text-lg px-8 py-4 w-full">
+              Ir para o Aplicativo de Orçamento
+            </Button>
+          </Link>
+          <Link to="/history">
+            <Button size="lg" variant="outline" className="text-lg px-8 py-4 w-full">
+              Ver Histórico de Transações
+            </Button>
+          </Link>
+          <Link to="/login">
+            <Button size="lg" variant="secondary" className="text-lg px-8 py-4 w-full">
+              Entrar
+            </Button>
+          </Link>
+          <Link to="/register">
+            <Button size="lg" variant="ghost" className="text-lg px-8 py-4 w-full">
+              Registrar
+            </Button>
+          </Link>
+        </div>
       </div>
       <MadeWithDyad />
     </div>
