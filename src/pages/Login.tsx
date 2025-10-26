@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Importar useNavigate
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -9,11 +9,14 @@ import { Button } from "@/components/ui/button";
 import { showSuccess, showError } from "@/utils/toast";
 
 const Login = () => {
+  const navigate = useNavigate(); // Inicializar useNavigate
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     // Lógica de login simulada
     showSuccess("Login bem-sucedido! (Funcionalidade real de backend não implementada)");
     // Em um aplicativo real, você faria uma chamada de API aqui
+    navigate("/"); // Redirecionar para a página inicial
   };
 
   return (

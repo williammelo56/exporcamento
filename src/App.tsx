@@ -2,13 +2,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"; // Importar Navigate
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import BudgetApp from "./pages/BudgetApp";
-import Register from "./pages/Register"; // Importar a nova página de registro
-import Login from "./pages/Login";     // Importar a nova página de login
-import History from "./pages/History";   // Importar a nova página de histórico
+import Register from "./pages/Register";
+import Login from "./pages/Login";
+import History from "./pages/History";
+import ProductRegistration from "./pages/ProductRegistration"; // Importar a nova página de cadastro de produtos
 
 const queryClient = new QueryClient();
 
@@ -21,9 +22,12 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/budget" element={<BudgetApp />} />
-          <Route path="/history" element={<History />} /> {/* Nova rota para o histórico */}
-          <Route path="/register" element={<Register />} /> {/* Nova rota para registro */}
-          <Route path="/login" element={<Login />} />     {/* Nova rota para login */}
+          <Route path="/history" element={<History />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/product-registration" element={<ProductRegistration />} /> {/* Nova rota */}
+          {/* Redireciona a rota raiz para /login */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
