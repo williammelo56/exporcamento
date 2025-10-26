@@ -35,14 +35,19 @@ const Index = () => {
               Cadastrar Produtos
             </Button>
           </Link>
-          <Link to="/salesperson-registration"> {/* Novo link */}
+          <Link to="/salesperson-registration">
             <Button size="lg" variant="ghost" className="text-lg px-8 py-4 w-full">
               Cadastrar Vendedores
             </Button>
           </Link>
-          <Link to="/panel-model-registration"> {/* Novo link */}
+          <Link to="/panel-model-registration">
             <Button size="lg" variant="ghost" className="text-lg px-8 py-4 w-full">
               Cadastrar Modelos de Painel
+            </Button>
+          </Link>
+          <Link to="/acm-border-model-registration"> {/* Novo link */}
+            <Button size="lg" variant="ghost" className="text-lg px-8 py-4 w-full">
+              Cadastrar Modelos de Borda ACM
             </Button>
           </Link>
           <Button size="lg" variant="destructive" className="text-lg px-8 py-4 w-full" onClick={handleLogout}>

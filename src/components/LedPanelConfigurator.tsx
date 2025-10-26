@@ -12,6 +12,7 @@ import { showSuccess, showError } from "@/utils/toast";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { PanelModel } from "@/pages/PanelModelRegistration"; // Importar a interface PanelModel
+import { AcmBorderModel } from "@/pages/AcmBorderModelRegistration"; // Importar a interface AcmBorderModel
 
 interface Salesperson {
   id: string;
@@ -30,6 +31,7 @@ const LedPanelConfigurator = () => {
   const navigate = useNavigate();
   const [salespeople, setSalespeople] = useState<Salesperson[]>([]);
   const [panelModels, setPanelModels] = useState<PanelModel[]>([]);
+  const [acmBorderModels, setAcmBorderModels] = useState<AcmBorderModel[]>([]); // Novo estado para modelos de borda ACM
 
   const [selectedSalespersonId, setSelectedSalespersonId] = useState("");
   const [nomeDoCliente, setNomeDoCliente] = useState("");
@@ -40,6 +42,8 @@ const LedPanelConfigurator = () => {
   const [valorUnitarioPainel, setValorUnitarioPainel] = useState<number | string>("");
   const [valorUnitarioEstrutura, setValorUnitarioEstrutura] = useState<number | string>("");
   const [incluirBorda, setIncluirBorda] = useState(false);
+  const [selectedAcmBorderModelId, setSelectedAcmBorderModelId] = useState(""); // Novo estado para borda ACM
+  const [valorUnitarioBordaAcm, setValorUnitarioBordaAcm] = useState<number | string>(""); // Novo estado para preço da borda ACM
   const [distanciaLocal, setDistanciaLocal] = useState<number | string>("");
   const [tempoViagem, setTempoViagem] = useState<number | string>("");
   const [numeroFuncionarios, setNumeroFuncionarios] = useState<number | string>("");
@@ -49,7 +53,7 @@ const LedPanelConfigurator = () => {
   const [incluirPilarFerro, setIncluirPilarFerro] = useState(false);
   const [oferecerLocacao, setOferecerLocacao] = useState(false);
 
-  // Load salespeople and panel models from localStorage
+  // Load data from localStorage
   useEffect(() => {
     const storedSalespeople = localStorage.getItem("salespeople");
     if (storedSalespeople) {
@@ -58,6 +62,10 @@ const LedPanelConfigurator = () => {
     const storedPanelModels = localStorage.getItem("panelModels");
     if (storedPanelModels) {
       setPanelModels(JSON.parse(storedPanelModels));
+    }
+    const storedAcmBorderModels = localStorage.getItem("acmBorderModels"); // Carregar modelos de borda ACM
+    if (storedAcmBorderModels) {
+      setAcmBorderModels(JSON.parse(storedAcmBorderModels));
     }
   }, []);
 
@@ -76,6 +84,16 @@ const LedPanelConfigurator = () => {
     setValorUnitarioEstrutura(structurePrices[tipoDeFace] || 0);
   }, [tipoDeFace]);
 
+  // Update ACM border unit price when selected ACM border model changes
+  useEffect(() => {
+    const model = acmBorderModels.find(m => m.id === selectedAcmBorderModelId);
+    if (model) {
+      setValorUnitarioBordaAcm(model.defaultPrice);
+    } else {
+      setValorUnitarioBordaAcm("");
+    }
+  }, [selectedAcmBorderModelId, acmBorderModels]);
+
   const handleCalculateBudget = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -89,6 +107,8 @@ const LedPanelConfigurator = () => {
     const parsedNumeroFuncionarios = parseFloat(numeroFuncionarios as string);
     const parsedHorasTrabalho = parseFloat(horasTrabalho as string);
     const parsedHorasMunck = parseFloat(horasMunck as string);
+    const parsedValorUnitarioBordaAcm = parseFloat(valorUnitarioBordaAcm as string);
+
 
     if (
       !selectedSalespersonId ||
@@ -103,7 +123,8 @@ const LedPanelConfigurator = () => {
       isNaN(parsedNumeroFuncionarios) || parsedNumeroFuncionarios <= 0 ||
       isNaN(parsedHorasTrabalho) || parsedHorasTrabalho < 0 ||
       isNaN(parsedHorasMunck) || parsedHorasMunck < 0 ||
-      !controladora
+      !controladora ||
+      (incluirBorda && (!selectedAcmBorderModelId || isNaN(parsedValorUnitarioBordaAcm) || parsedValorUnitarioBordaAcm <= 0))
     ) {
       showError("Por favor, preencha todos os campos obrigatórios com valores válidos.");
       return;
@@ -118,6 +139,8 @@ const LedPanelConfigurator = () => {
       valorUnitarioPainel: parsedValorUnitarioPainel,
       valorUnitarioEstrutura: parsedValorUnitarioEstrutura,
       incluirBorda,
+      modeloBordaAcm: incluirBorda ? acmBorderModels.find(m => m.id === selectedAcmBorderModelId)?.name : undefined,
+      valorUnitarioBordaAcm: incluirBorda ? parsedValorUnitarioBordaAcm : undefined,
       instalacao: {
         distanciaLocal: parsedDistanciaLocal,
         tempoViagem: parsedTempoViagem,
@@ -285,10 +308,53 @@ const LedPanelConfigurator = () => {
             <Checkbox
               id="incluirBorda"
               checked={incluirBorda}
-              onCheckedChange={(checked) => setIncluirBorda(checked === true)}
+              onCheckedChange={(checked) => {
+                setIncluirBorda(checked === true);
+                if (checked === false) {
+                  setSelectedAcmBorderModelId(""); // Limpa a seleção da borda se o checkbox for desmarcado
+                  setValorUnitarioBordaAcm(""); // Limpa o valor da borda
+                }
+              }}
             />
             <Label htmlFor="incluirBorda">Incluir borda no pedido?</Label>
           </div>
+
+          {incluirBorda && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="modeloBordaAcm">Modelo de Borda ACM:</Label>
+                <div className="flex items-center space-x-2">
+                  <Select value={selectedAcmBorderModelId} onValueChange={setSelectedAcmBorderModelId} required={incluirBorda}>
+                    <SelectTrigger id="modeloBordaAcm">
+                      <SelectValue placeholder="Selecione um modelo de borda ACM" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {acmBorderModels.map((model) => (
+                        <SelectItem key={model.id} value={model.id}>
+                          {model.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button variant="outline" size="icon" onClick={() => navigate("/acm-border-model-registration")} aria-label="Cadastrar novo modelo de borda ACM">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="valorUnitarioBordaAcm">Valor Unitário da Borda ACM (R$):</Label>
+                <Input
+                  id="valorUnitarioBordaAcm"
+                  type="number"
+                  step="0.01"
+                  value={valorUnitarioBordaAcm}
+                  onChange={(e) => setValorUnitarioBordaAcm(e.target.value)}
+                  placeholder="0.00"
+                  required={incluirBorda}
+                />
+              </div>
+            </div>
+          )}
 
           <h3 className="text-lg font-semibold mt-6 mb-4">Seção de Instalação</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

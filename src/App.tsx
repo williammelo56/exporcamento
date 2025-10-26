@@ -10,8 +10,9 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import History from "./pages/History";
 import ProductRegistration from "./pages/ProductRegistration";
-import SalespersonRegistration from "./pages/SalespersonRegistration"; // Importar a nova página
-import PanelModelRegistration from "./pages/PanelModelRegistration"; // Importar a nova página
+import SalespersonRegistration from "./pages/SalespersonRegistration";
+import PanelModelRegistration from "./pages/PanelModelRegistration";
+import AcmBorderModelRegistration from "./pages/AcmBorderModelRegistration"; // Importar a nova página
 
 const queryClient = new QueryClient();
 
@@ -28,8 +29,9 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/product-registration" element={<ProductRegistration />} />
-          <Route path="/salesperson-registration" element={<SalespersonRegistration />} /> {/* Nova rota */}
-          <Route path="/panel-model-registration" element={<PanelModelRegistration />} /> {/* Nova rota */}
+          <Route path="/salesperson-registration" element={<SalespersonRegistration />} />
+          <Route path="/panel-model-registration" element={<PanelModelRegistration />} />
+          <Route path="/acm-border-model-registration" element={<AcmBorderModelRegistration />} /> {/* Nova rota */}
           {/* Redireciona a rota raiz para /login */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
