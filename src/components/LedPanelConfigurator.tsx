@@ -31,7 +31,7 @@ const LedPanelConfigurator = () => {
   const navigate = useNavigate();
   const [salespeople, setSalespeople] = useState<Salesperson[]>([]);
   const [panelModels, setPanelModels] = useState<PanelModel[]>([]);
-  const [acmBorderModels, setAcmBorderModels] = useState<AcmBorderModel[]>([]); // Novo estado para modelos de borda ACM
+  const [acmBorderModels, setAcmBorderModels] = useState<AcmBorderModel[]>([]);
 
   const [selectedSalespersonId, setSelectedSalespersonId] = useState("");
   const [nomeDoCliente, setNomeDoCliente] = useState("");
@@ -42,8 +42,8 @@ const LedPanelConfigurator = () => {
   const [valorUnitarioPainel, setValorUnitarioPainel] = useState<number | string>("");
   const [valorUnitarioEstrutura, setValorUnitarioEstrutura] = useState<number | string>("");
   const [incluirBorda, setIncluirBorda] = useState(false);
-  const [selectedAcmBorderModelId, setSelectedAcmBorderModelId] = useState(""); // Novo estado para borda ACM
-  const [valorUnitarioBordaAcm, setValorUnitarioBordaAcm] = useState<number | string>(""); // Novo estado para preço da borda ACM
+  const [selectedAcmBorderModelId, setSelectedAcmBorderModelId] = useState("");
+  const [valorUnitarioBordaAcm, setValorUnitarioBordaAcm] = useState<number | string>("");
   const [distanciaLocal, setDistanciaLocal] = useState<number | string>("");
   const [tempoViagem, setTempoViagem] = useState<number | string>("");
   const [numeroFuncionarios, setNumeroFuncionarios] = useState<number | string>("");
@@ -53,8 +53,8 @@ const LedPanelConfigurator = () => {
   const [incluirPilarFerro, setIncluirPilarFerro] = useState(false);
   const [oferecerLocacao, setOferecerLocacao] = useState(false);
 
-  // Load data from localStorage
-  useEffect(() => {
+  // Function to load all data from localStorage
+  const loadDataFromLocalStorage = () => {
     const storedSalespeople = localStorage.getItem("salespeople");
     if (storedSalespeople) {
       setSalespeople(JSON.parse(storedSalespeople));
@@ -63,11 +63,26 @@ const LedPanelConfigurator = () => {
     if (storedPanelModels) {
       setPanelModels(JSON.parse(storedPanelModels));
     }
-    const storedAcmBorderModels = localStorage.getItem("acmBorderModels"); // Carregar modelos de borda ACM
+    const storedAcmBorderModels = localStorage.getItem("acmBorderModels");
     if (storedAcmBorderModels) {
       setAcmBorderModels(JSON.parse(storedAcmBorderModels));
     }
-  }, []);
+  };
+
+  // Load data initially and whenever the window gains focus
+  useEffect(() => {
+    loadDataFromLocalStorage(); // Initial load
+
+    const handleFocus = () => {
+      loadDataFromLocalStorage(); // Reload data when window gains focus
+    };
+
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, []); // Empty dependency array means this runs once on mount and cleanup on unmount
 
   // Update panel unit price when selected panel model changes
   useEffect(() => {
@@ -311,8 +326,8 @@ const LedPanelConfigurator = () => {
               onCheckedChange={(checked) => {
                 setIncluirBorda(checked === true);
                 if (checked === false) {
-                  setSelectedAcmBorderModelId(""); // Limpa a seleção da borda se o checkbox for desmarcado
-                  setValorUnitarioBordaAcm(""); // Limpa o valor da borda
+                  setSelectedAcmBorderModelId("");
+                  setValorUnitarioBordaAcm("");
                 }
               }}
             />
