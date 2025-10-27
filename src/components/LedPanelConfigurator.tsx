@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react"; // Import useCallback
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -11,8 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { showSuccess, showError } from "@/utils/toast";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
-import { PanelModel } from "@/pages/PanelModelRegistration"; // Importar a interface PanelModel
-import { AcmBorderModel } from "@/pages/AcmBorderModelRegistration"; // Importar a interface AcmBorderModel
+import { PanelModel } from "@/pages/PanelModelRegistration";
+import { AcmBorderModel } from "@/pages/AcmBorderModelRegistration";
 
 interface Salesperson {
   id: string;
@@ -53,21 +53,32 @@ const LedPanelConfigurator = () => {
   const [incluirPilarFerro, setIncluirPilarFerro] = useState(false);
   const [oferecerLocacao, setOferecerLocacao] = useState(false);
 
-  // Function to load all data from localStorage
-  const loadDataFromLocalStorage = () => {
+  // Function to load all data from localStorage and update state
+  const loadDataFromLocalStorage = useCallback(() => {
     const storedSalespeople = localStorage.getItem("salespeople");
-    if (storedSalespeople) {
-      setSalespeople(JSON.parse(storedSalespeople));
+    const loadedSalespeople: Salesperson[] = storedSalespeople ? JSON.parse(storedSalespeople) : [];
+    setSalespeople(loadedSalespeople);
+    // If the currently selected salesperson no longer exists, reset selection
+    if (selectedSalespersonId && !loadedSalespeople.some(s => s.id === selectedSalespersonId)) {
+      setSelectedSalespersonId("");
     }
+
     const storedPanelModels = localStorage.getItem("panelModels");
-    if (storedPanelModels) {
-      setPanelModels(JSON.parse(storedPanelModels));
+    const loadedPanelModels: PanelModel[] = storedPanelModels ? JSON.parse(storedPanelModels) : [];
+    setPanelModels(loadedPanelModels);
+    // If the currently selected panel model no longer exists, reset selection
+    if (selectedPanelModelId && !loadedPanelModels.some(m => m.id === selectedPanelModelId)) {
+      setSelectedPanelModelId("");
     }
+
     const storedAcmBorderModels = localStorage.getItem("acmBorderModels");
-    if (storedAcmBorderModels) {
-      setAcmBorderModels(JSON.parse(storedAcmBorderModels));
+    const loadedAcmBorderModels: AcmBorderModel[] = storedAcmBorderModels ? JSON.parse(storedAcmBorderModels) : [];
+    setAcmBorderModels(loadedAcmBorderModels);
+    // If the currently selected ACM border model no longer exists, reset selection
+    if (selectedAcmBorderModelId && !loadedAcmBorderModels.some(m => m.id === selectedAcmBorderModelId)) {
+      setSelectedAcmBorderModelId("");
     }
-  };
+  }, [selectedSalespersonId, selectedPanelModelId, selectedAcmBorderModelId]); // Dependencies for useCallback
 
   // Load data initially and whenever the window gains focus
   useEffect(() => {
@@ -82,7 +93,7 @@ const LedPanelConfigurator = () => {
     return () => {
       window.removeEventListener("focus", handleFocus);
     };
-  }, []); // Empty dependency array means this runs once on mount and cleanup on unmount
+  }, [loadDataFromLocalStorage]); // Add loadDataFromLocalStorage to dependencies
 
   // Update panel unit price when selected panel model changes
   useEffect(() => {
